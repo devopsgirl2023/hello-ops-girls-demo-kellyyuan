@@ -17,20 +17,21 @@ Parameters:
     Description: Route 53 Fully Qualified Domain Name
     Type: String
 Resources:
-  Resources:
-  MyEC2Instance: #An inline comment
-    Type: "AWS::EC2::Instance"
+  Instance:
+    Type: AWS::EC2::Instance
     Properties:
-      ImageId: "ami-0ff8a91507f77f867" #Another comment -- This is a Linux AMI
+      ImageId: ami-06b79cf2aee0d5c92
       InstanceType: t2.micro
-      KeyName: testkey
-      BlockDeviceMappings:
-        - DeviceName: /dev/sdm
-          Ebs:
-            VolumeType: io1
-            Iops: 200
-            DeleteOnTermination: false
-            VolumeSize: 20
+      KeyName: !Ref KeyName
+      SecurityGroups:
+        - !Ref SecurityGroupName
+      IamInstanceProfile: !Ref InstanceProfile
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          yum update -y
+          amazon-linux-extras install nginx1 -y
+          systemctl enable --now nginx
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -45,4 +46,26 @@ Resources:
     Properties:
       EIP: !Ref EIP
       InstanceId: !Ref Instance
+  Record:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      TTL: "60"
+      ResourceRecords:
+        - !Ref EIP
+  Outputs:
+    InstanceId:
+      Description: EC2 Instance Id
+      Value: !Ref Instance
+    PublicIP:
+      Description: EC2 Instance Public IP Address
+      Value: !Ref EIP
+    PrivateIP:
+      Description: EC2 Instance Private IP Address
+      Value: !GetAtt Instance.PrivateIp
+    DomainName:
+      Description: Fully Qualified Domain Name
+      Value: !Ref DomainName
   # TODO: Add RecordSet
