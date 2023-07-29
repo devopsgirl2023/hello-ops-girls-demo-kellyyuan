@@ -17,17 +17,20 @@ Parameters:
     Description: Route 53 Fully Qualified Domain Name
     Type: String
 Resources:
-  Instance:
-    Type: AWS::EC2::Instance
+  Resources:
+  MyEC2Instance: #An inline comment
+    Type: "AWS::EC2::Instance"
     Properties:
-      # TODO: Add properties according to the playbook
-      IamInstanceProfile: !Ref InstanceProfile
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          yum update -y
-          amazon-linux-extras install nginx1 -y
-          systemctl enable --now nginx
+      ImageId: "ami-0ff8a91507f77f867" #Another comment -- This is a Linux AMI
+      InstanceType: t2.micro
+      KeyName: testkey
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdm
+          Ebs:
+            VolumeType: io1
+            Iops: 200
+            DeleteOnTermination: false
+            VolumeSize: 20
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
