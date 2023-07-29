@@ -47,8 +47,8 @@ Resources:
       EIP: !Ref EIP
       InstanceId: !Ref Instance
   Record:
-     Type: AWS::Route53::RecordSet
-     Properties:
+    Type: AWS::Route53::RecordSet
+    Properties:
       HostedZoneId: !Ref HostedZoneId
       Name: !Ref DomainName
       Type: A
